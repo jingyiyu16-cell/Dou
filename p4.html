@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Detail | RHYTHM</title>
+    
+    <!-- 字体与核心库 (保持一致) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #050505;
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --accent: #fff;
+            --font-display: 'Cinzel', serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-body); overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* 噪点与光标 (复用) */
+        .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9990; opacity: 0.04; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        .cursor { position: fixed; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10000; mix-blend-mode: difference; transition: transform 0.3s; }
+        .cursor.hovered { transform: translate(-50%, -50%) scale(4); background: white; mix-blend-mode: difference; }
+
+        /* 导航栏 */
+        .nav-fixed { position: fixed; top: 0; left: 0; width: 100%; padding: 2rem 3rem; display: flex; justify-content: space-between; z-index: 100; mix-blend-mode: exclusion; }
+        .back-btn { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid transparent; transition: 0.3s; }
+        .back-btn:hover { border-bottom: 1px solid white; }
+
+        /* 1. 项目 Hero 视频/图片 */
+        .project-hero { height: 100vh; width: 100%; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .hero-media { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+        
+        .hero-title-wrap { z-index: 2; text-align: center; mix-blend-mode: difference; }
+        .hero-title { font-family: var(--font-display); font-size: 8vw; line-height: 1; text-transform: uppercase; }
+        .hero-meta { margin-top: 1rem; display: flex; gap: 2rem; justify-content: center; color: rgba(255,255,255,0.8); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px; }
+
+        /* 2. 项目介绍与视频嵌入 */
+        .content-section { max-width: 1200px; margin: 0 auto; padding: 8rem 2rem; }
+        
+        .text-block { display: grid; grid-template-columns: 1fr 2fr; gap: 4rem; margin-bottom: 6rem; }
+        .label { color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; border-top: 1px solid #333; padding-top: 1rem; display: inline-block;}
+        .desc { font-size: 1.5rem; line-height: 1.6; font-weight: 300; }
+
+        /* 视频容器 (16:9) */
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #111; margin-bottom: 6rem; position: relative; overflow: hidden; }
+        .video-wrapper iframe, .video-wrapper video { width: 100%; height: 100%; border: none; object-fit: cover; }
+
+        /* 图片网格 */
+        .image-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 6rem; }
+        .grid-img { width: 100%; height: 600px; object-fit: cover; filter: grayscale(100%); transition: filter 0.5s; }
+        .grid-img:hover { filter: grayscale(0%); }
+
+        /* 3. 下一个项目 (Footer Nav) */
+        .next-project { height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center; border-top: 1px solid #222; position: relative; overflow: hidden; }
+        .next-label { font-size: 1rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 1rem; z-index: 2; }
+        .next-title { font-family: var(--font-display); font-size: 6vw; z-index: 2; text-transform: uppercase; transition: transform 0.3s; }
+        .next-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s; z-index: 1; }
+        
+        .next-project:hover .next-bg { opacity: 0.3; }
+        .next-project:hover .next-title { transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+    <div class="cursor"></div>
+
+    <!-- 导航 -->
+    <nav class="nav-fixed">
+        <!-- 点击返回首页 -->
+        <a href="index.html" class="back-btn hover-target">← Back to Gallery</a>
+        <div style="font-family: var(--font-display);">RHYTHM.</div>
+    </nav>
+
+    <!-- 1. Hero: 顶部大视频/图 -->
+    <header class="project-hero">
+        <!-- ★★★ 可替换位 1：顶部背景 (建议用视频 loop) ★★★ -->
+        <!-- 如果是图片： <img src="..." class="hero-media"> -->
+        <video class="hero-media" autoplay muted loop playsinline>
+            <source src="https://assets.codepen.io/32795/poster-frame.mp4" type="video/mp4">
+        </video>
+
+        <div class="hero-title-wrap">
+            <!-- ★★★ 可替换位 2：项目标题 ★★★ -->
+            <h1 class="hero-title">Void Echo</h1> 
+            <div class="hero-meta">
+                <span>Interactive</span> • <span>WebGL</span> • <span>2025</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. 详细内容 -->
+    <section class="content-section">
+        <!-- 文本介绍 -->
+        <div class="text-block">
+            <div class="label">Brief / 简介</div>
+            <!-- ★★★ 可替换位 3：项目描述 ★★★ -->
+            <div class="desc">
+                这是一个探索声音与空间关系的交互装置。当观众在空间中移动时，传感器会捕捉其动态，并将其转化为实时的粒子流体视觉效果。<br><br>
+                This interactive installation explores the relationship between sound and void.
+            </div>
+        </div>
+
+        <!-- 核心展示视频 -->
+        <div class="video-wrapper">
+            <!-- ★★★ 可替换位 4：嵌入 B站/YouTube/Vimeo 或 本地视频 ★★★ -->
+            <!-- 建议使用 iframe 嵌入 B站 (记得加宽高 100%) -->
+            <iframe src="//player.bilibili.com/player.html?aid=12345678&bvid=BV123456&cid=123456&page=1&high_quality=1&danmaku=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+        </div>
+
+        <div class="text-block">
+            <div class="label">Technology / 技术栈</div>
+            <div class="desc" style="font-size: 1rem; color: #aaa;">
+                TouchDesigner, Python, Kinect Azure, Projection Mapping
+            </div>
+        </div>
+
+        <!-- 静态图展示 -->
+        <div class="image-grid">
+            <!-- ★★★ 可替换位 5：更多细节图 ★★★ -->
+            <img src="https://images.unsplash.com/photo-1515462277126-2dd0c162007a?q=80&w=1000&auto=format&fit=crop" class="grid-img hover-target" alt="Detail 1">
+            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop" class="grid-img hover-target" alt="Detail 2">
+        </div>
+    </section>
+
+    <!-- 3. 下一个项目引导 (引流) -->
+    <!-- 假设这是 p1.html，那么这里链接到 p2.html -->
+    <a href="p2.html" class="next-project hover-target">
+        <!-- ★★★ 可替换位 6：下一个项目的背景预览图 ★★★ -->
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" class="next-bg" alt="Next Project">
+        
+        <span class="next-label">Next Project</span>
+        <!-- ★★★ 可替换位 7：下一个项目的标题 ★★★ -->
+        <h2 class="next-title">Cyber Flux</h2>
+    </a>
+
+    <script>
+        // 1. Lenis 平滑滚动
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        // 2. 鼠标交互
+        const cursor = document.querySelector('.cursor');
+        const targets = document.querySelectorAll('.hover-target');
+        
+        window.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+        });
+
+        targets.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+        });
+
+        // 3. 简单的进入动画
+        gsap.from(".hero-title", { y: 100, opacity: 0, duration: 1.5, ease: "power4.out", delay: 0.2 });
+        gsap.from(".content-section", { y: 50, opacity: 0, duration: 1, scrollTrigger: { trigger: ".content-section", start: "top 80%" }});
+    </script>
+</body>
+</html>

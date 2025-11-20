@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROFILE | RHYTHM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Space+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root { --bg: #050505; --text: #e0e0e0; --accent: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* 噪点与光标 */
+        .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9990; opacity: 0.04; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        .cursor { position: fixed; width: 10px; height: 10px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10000; mix-blend-mode: difference; transition: transform 0.3s; }
+        
+        /* 关闭按钮 */
+        .close-btn {
+            position: fixed; top: 2rem; right: 3rem; font-family: 'Space Mono'; 
+            font-size: 1.2rem; z-index: 100; mix-blend-mode: difference;
+        }
+
+        /* 主布局 */
+        .profile-container {
+            display: flex; min-height: 100vh;
+        }
+
+        /* 左侧：巨幅肖像 */
+        .portrait-section {
+            width: 45%; height: 100vh; position: fixed; top: 0; left: 0;
+            overflow: hidden; border-right: 1px solid #1a1a1a;
+        }
+        .portrait-img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: grayscale(100%) contrast(1.1) brightness(0.8);
+            transition: scale 10s ease;
+        }
+        /* 缓慢放大效果 */
+        .portrait-section:hover .portrait-img { scale: 1.05; }
+
+        /* 右侧：内容滚动区 */
+        .info-section {
+            width: 55%; margin-left: 45%; padding: 8rem 6rem;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .artist-title {
+            font-family: 'Cinzel', serif; font-size: 6vw; line-height: 0.9; margin-bottom: 1rem;
+            text-transform: uppercase; letter-spacing: -2px;
+        }
+        .artist-role {
+            font-family: 'Space Mono'; color: #666; font-size: 1rem; margin-bottom: 6rem;
+            display: block; letter-spacing: 2px;
+        }
+
+        .bio-text {
+            font-size: 1.2rem; line-height: 1.8; color: #bbb; margin-bottom: 4rem; max-width: 600px;
+            font-weight: 300;
+        }
+        .highlight { color: #fff; font-weight: 400; border-bottom: 1px solid #444; }
+
+        /* 列表样式 */
+        .list-group { margin-bottom: 5rem; }
+        .list-label { font-family: 'Space Mono'; font-size: 0.8rem; color: #555; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 1.5rem; display: block; }
+        .list-item {
+            display: flex; justify-content: space-between; font-family: 'Inter'; font-size: 1rem; 
+            padding: 10px 0; border-bottom: 1px solid #111; transition: 0.3s; color: #888;
+        }
+        .list-item:hover { color: #fff; padding-left: 10px; }
+        .year { font-family: 'Space Mono'; font-size: 0.8rem; opacity: 0.5; }
+
+        /* 联系方式大文字 */
+        .contact-link {
+            font-family: 'Cinzel', serif; font-size: 4rem; color: #fff;
+            display: block; margin-top: 2rem; transition: 0.3s;
+        }
+        .contact-link:hover { color: #888; letter-spacing: 5px; }
+
+        /* 移动端适配 */
+        @media(max-width: 768px) {
+            .profile-container { flex-direction: column; }
+            .portrait-section { width: 100%; height: 50vh; position: relative; }
+            .info-section { width: 100%; margin-left: 0; padding: 4rem 2rem; }
+            .artist-title { font-size: 3.5rem; }
+            .contact-link { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+    <div class="cursor"></div>
+    
+    <a href="index.html" class="close-btn hover-magnet">CLOSE [×]</a>
+
+    <div class="profile-container">
+        <!-- 左侧肖像 (建议用一张非常有质感的黑白照片，侧脸或剪影) -->
+        <div class="portrait-section">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2000&auto=format&fit=crop" class="portrait-img" alt="Artist Portrait">
+        </div>
+
+        <!-- 右侧信息 -->
+        <div class="info-section">
+            <div>
+                <h1 class="artist-title">Your<br>Name</h1>
+                <span class="artist-role">NEW MEDIA ARTIST / TD DEVELOPER</span>
+                
+                <p class="bio-text">
+                    专注于<span class="highlight">实时生成艺术</span>与交互装置的探索。试图在代码的逻辑与人类的感性之间寻找平衡。<br><br>
+                    My work explores the delicate balance between algorithmic logic and human sensibility, utilizing TouchDesigner and UE5 as primary mediums.
+                </p>
+
+                <div class="list-group">
+                    <span class="list-label">SELECTED EXHIBITIONS</span>
+                    <div class="list-item hover-magnet">
+                        <span>West Bund Art Center, Shanghai</span> <span class="year">2026</span>
+                    </div>
+                    <div class="list-item hover-magnet">
+                        <span>Ars Electronica, Linz (Digital)</span> <span class="year">2025</span>
+                    </div>
+                    <div class="list-item hover-magnet">
+                        <span>M50 Creative Park, Solo Show</span> <span class="year">2024</span>
+                    </div>
+                </div>
+
+                <div class="list-group">
+                    <span class="list-label">CAPABILITIES</span>
+                    <div class="list-item">TouchDesigner / GLSL</div>
+                    <div class="list-item">Unreal Engine 5</div>
+                    <div class="list-item">Interactive Installation</div>
+                </div>
+
+                <div style="margin-top: 6rem;">
+                    <span class="list-label">CONTACT / INQUIRY</span>
+                    <a href="mailto:your@email.com" class="contact-link hover-magnet">HELLO@<br>YOURNAME.COM</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 动画入场
+        gsap.from(".portrait-img", { scale: 1.2, opacity: 0, duration: 2, ease: "power2.out" });
+        gsap.from(".info-section > div", { y: 50, opacity: 0, duration: 1.5, delay: 0.5, ease: "power3.out" });
+
+        // 鼠标逻辑
+        const cursor = document.querySelector('.cursor');
+        window.addEventListener('mousemove', e => gsap.to(cursor, {x: e.clientX, y: e.clientY, duration: 0.1}));
+        
+        document.querySelectorAll('.hover-magnet').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                gsap.to(cursor, {scale: 4, opacity: 0.2, background: '#fff'});
+            });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(cursor, {scale: 1, opacity: 1, background: '#fff'});
+            });
+        });
+
+// ================= NEW MOUSE SCRIPT =================
+const cursor = document.querySelector('.cursor');
+
+// 1. 瞬间跟随 (无延迟)
+window.addEventListener('mousemove', (e) => {
+    gsap.set(cursor, { x: e.clientX, y: e.clientY });
+});
+
+// 2. 磁吸/悬停效果 (保持不变，增加交互反馈)
+document.querySelectorAll('.hover-magnet, a, button, input').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+        // 悬停时：光标变大、透明、反色
+        gsap.to(cursor, { scale: 3, opacity: 0.3, mixBlendMode: 'difference', duration: 0.2 });
+    });
+    el.addEventListener('mouseleave', () => {
+        // 离开时：恢复原状
+        gsap.to(cursor, { scale: 1, opacity: 1, mixBlendMode: 'difference', duration: 0.2 });
+    });
+});
+    </script>
+</body>
+</html>

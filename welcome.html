@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHYTHM | Guide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- 引入图标库 RemixIcon (轻量级) -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Space+Mono&family=Inter:wght@300;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root { 
+            --bg: #0a0a0a; 
+            --card: #141414;
+            --text: #e0e0e0; 
+            --gold: #e6b000; 
+            --dim: #666;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh; padding: 0 1.5rem;
+            display: flex; flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* 背景动效 */
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% -20%, #222, #0a0a0a 70%);
+            z-index: -1;
+        }
+
+        /* 1. 欢迎区 */
+        .header { margin-top: 4rem; margin-bottom: 3rem; text-align: center; }
+        .sub-label { font-family: 'Space Mono'; font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 1rem; display: block;}
+        
+        .visitor-name {
+            font-family: 'Cinzel', serif; font-size: 2.5rem; line-height: 1.1; 
+            text-transform: uppercase; color: #fff; margin-bottom: 1rem;
+        }
+        
+        .id-badge {
+            display: inline-block; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px; border-radius: 30px;
+            font-family: 'Space Mono'; font-size: 0.8rem; color: #888; letter-spacing: 1px;
+        }
+
+        /* 2. 观展指南 (Grid Layout) */
+        .section-title {
+            font-family: 'Cinzel'; font-size: 1.2rem; margin-bottom: 1.5rem; 
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::after { content:''; flex:1; height:1px; background: #333; }
+
+        .guide-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 3rem;
+        }
+        .guide-item {
+            background: var(--card); border-radius: 12px; padding: 1.5rem;
+            text-align: center; transition: transform 0.2s; border: 1px solid #222;
+        }
+        .guide-item:active { transform: scale(0.98); }
+        
+        .guide-icon { font-size: 1.8rem; color: #fff; margin-bottom: 0.8rem; display: block; }
+        .guide-h { font-size: 0.8rem; font-weight: 600; color: #fff; margin-bottom: 0.3rem; }
+        .guide-p { font-size: 0.65rem; color: #666; line-height: 1.4; }
+
+        /* 3. 隐藏礼物 (互动区) */
+        .gift-container {
+            position: relative; margin-bottom: 4rem;
+        }
+        
+        .gift-card {
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            border: 1px solid var(--gold); border-radius: 16px;
+            padding: 2rem; text-align: center; position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* 动态流光 */
+        .shine-effect {
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(230, 176, 0, 0.15), transparent);
+            transform: rotate(45deg); animation: shine 4s infinite linear; pointer-events: none;
+        }
+        @keyframes shine { 0% {transform: translateX(-50%) rotate(45deg);} 100% {transform: translateX(50%) rotate(45deg);} }
+
+        .gift-lock-icon { font-size: 2rem; color: var(--gold); margin-bottom: 1rem; }
+        
+        .gift-content { opacity: 1; transition: 0.5s; }
+        .hidden-content { 
+            display: none; opacity: 0; transform: translateY(10px); 
+            font-family: 'Space Mono';
+        }
+        
+        .decrypt-btn {
+            background: var(--gold); color: #000; border: none; 
+            padding: 10px 20px; border-radius: 30px; font-family: 'Space Mono';
+            font-weight: bold; font-size: 0.8rem; margin-top: 1rem; cursor: pointer;
+        }
+
+        .gift-code-display {
+            font-size: 1.8rem; color: var(--gold); letter-spacing: 2px; 
+            border: 1px dashed var(--gold); padding: 10px; margin-top: 10px;
+            background: rgba(230, 176, 0, 0.1);
+        }
+
+        /* 底部 */
+        footer {
+            text-align: center; padding-bottom: 2rem; margin-top: auto;
+            font-family: 'Space Mono'; font-size: 0.6rem; color: #444;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-gradient"></div>
+
+    <!-- 1. 欢迎头部 -->
+    <div class="header">
+        <span class="sub-label">ACCESS GRANTED</span>
+        <h1 class="visitor-name" id="nameDisplay">Loading...</h1>
+        <div class="id-badge" id="idDisplay">ID: --</div>
+    </div>
+
+    <!-- 2. 文明观展指南 -->
+    <div>
+        <h2 class="section-title">Exhibition Guide</h2>
+        <div class="guide-grid">
+            <!-- 图标 1 -->
+            <div class="guide-item">
+                <i class="ri-camera-off-line guide-icon"></i>
+                <div class="guide-h">No Flash</div>
+                <p class="guide-p">禁止闪光灯<br>No flash photography</p>
+            </div>
+            <!-- 图标 2 -->
+            <div class="guide-item">
+                <i class="ri-volume-mute-line guide-icon"></i>
+                <div class="guide-h">Silence</div>
+                <p class="guide-p">保持安静<br>Keep voice low</p>
+            </div>
+            <!-- 图标 3 -->
+            <div class="guide-item">
+                <i class="ri-hand-coin-line guide-icon"></i>
+                <div class="guide-h">Don't Touch</div>
+                <p class="guide-p">请勿触摸装置<br>Sensitive sensors</p>
+            </div>
+            <!-- 图标 4 -->
+            <div class="guide-item">
+                <i class="ri-eye-2-line guide-icon"></i>
+                <div class="guide-h">Immersion</div>
+                <p class="guide-p">沉浸式体验<br>Enjoy the flow</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 隐藏礼物彩蛋 -->
+    <div class="gift-container">
+        <h2 class="section-title" style="color: var(--gold);">Hidden Surprise</h2>
+        
+        <div class="gift-card" id="giftCard">
+            <div class="shine-effect"></div>
+            
+            <!-- 未解锁状态 -->
+            <div class="gift-content" id="lockedState">
+                <i class="ri-lock-2-fill gift-lock-icon"></i>
+                <h3 style="margin-bottom: 0.5rem;">Exclusive Gift</h3>
+                <p style="font-size: 0.7rem; color: #888;">Tap to decrypt your souvenir key.</p>
+                <button class="decrypt-btn" id="unlockBtn">TAP TO UNLOCK</button>
+            </div>
+
+            <!-- 解锁后状态 -->
+            <div class="hidden-content" id="unlockedState">
+                <i class="ri-gift-2-fill gift-lock-icon"></i>
+                <p style="font-size: 0.7rem; color: #888;">Show this to staff at exit:</p>
+                <div class="gift-code-display" id="giftCode">LOADING</div>
+                <p style="font-size: 0.6rem; color: #666; margin-top: 10px;">
+                    *Valid for one-time redemption.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        RHYTHM EXHIBITION 2026 ©<br>Zhejiang Normal University
+    </footer>
+
+    <script>
+        // 1. 解析 URL 参数 (从 visit.html 的二维码传过来的)
+        const params = new URLSearchParams(window.location.search);
+        const name = params.get('n') || 'VISITOR';
+        const id = params.get('i') || 'GUEST-001';
+
+        // 填充数据
+        document.getElementById('nameDisplay').innerText = name;
+        document.getElementById('idDisplay').innerText = "ID: " + id;
+
+        // 2. 进场动画 (GSAP)
+        const tl = gsap.timeline();
+        tl.from(".header", { y: 30, opacity: 0, duration: 1, ease: "power3.out" })
+          .from(".guide-item", { y: 20, opacity: 0, stagger: 0.1, duration: 0.8 }, "-=0.5")
+          .from(".gift-container", { scale: 0.95, opacity: 0, duration: 1 }, "-=0.5");
+
+        // 3. 礼物解锁交互
+        const unlockBtn = document.getElementById('unlockBtn');
+        const lockedState = document.getElementById('lockedState');
+        const unlockedState = document.getElementById('unlockedState');
+        const giftCode = document.getElementById('giftCode');
+        const giftCard = document.getElementById('giftCard');
+
+        unlockBtn.addEventListener('click', () => {
+            // 模拟解密过程
+            unlockBtn.innerText = "DECRYPTING...";
+            
+            // 震动反馈 (如果手机支持)
+            if(navigator.vibrate) navigator.vibrate(30);
+
+            setTimeout(() => {
+                // 1. 生成随机礼物码 (包含名字首字母，增加专属感)
+                const code = "GIFT-" + Math.floor(Math.random() * 900 + 100) + "-" + name.charAt(0).toUpperCase();
+                giftCode.innerText = code;
+
+                // 2. 切换界面动画
+                gsap.to(lockedState, { opacity: 0, duration: 0.3, onComplete: () => {
+                    lockedState.style.display = 'none';
+                    unlockedState.style.display = 'block';
+                    
+                    gsap.to(unlockedState, { opacity: 1, y: 0, duration: 0.5 });
+                    // 卡片发光闪烁一次
+                    gsap.fromTo(giftCard, { borderColor: "#e6b000" }, { borderColor: "#fff", duration: 0.2, yoyo: true, repeat: 1 });
+                }});
+
+            }, 800); // 800毫秒延迟模拟运算
+        });
+    </script>
+</body>
+</html>

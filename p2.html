@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work 02 | RHYTHM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Space+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
+    <style>
+        :root { --bg: #050505; --text: #e0e0e0; --accent: #ffffff; --font-display: 'Cinzel', serif; --font-body: 'Inter', sans-serif; --font-mono: 'Space Mono', monospace; }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-body); overflow-x: hidden; }
+        .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9990; opacity: 0.05; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        .cursor { position: fixed; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10000; mix-blend-mode: difference; }
+
+        nav { position: fixed; top: 0; width: 100%; padding: 2rem 4rem; z-index: 100; display: flex; justify-content: flex-end; }
+        .close-btn { font-family: var(--font-mono); font-size: 1.5rem; color: #fff; text-decoration: none; mix-blend-mode: difference;}
+
+        /* === Template B 独有样式 (左右布局) === */
+        .split-container {
+            display: flex; min-height: 100vh; padding: 6rem 4rem;
+            max-width: 1600px; margin: 0 auto;
+            align-items: center;
+        }
+
+        .text-col { width: 40%; padding-right: 4rem; z-index: 2; }
+        .visual-col { width: 60%; position: relative; height: 70vh; }
+
+        .big-title {
+            font-family: var(--font-display); font-size: 5rem; line-height: 0.9;
+            margin-bottom: 2rem; color: #fff;
+        }
+        .meta-data {
+            font-family: var(--font-mono); color: #666; font-size: 0.8rem;
+            border-left: 1px solid #333; padding-left: 1rem; margin-bottom: 2rem;
+        }
+        .desc { font-size: 1rem; color: #aaa; line-height: 1.6; margin-bottom: 3rem; }
+
+        /* 视频框带视差 */
+        .video-frame {
+            width: 100%; height: 100%;
+            overflow: hidden; position: relative;
+            /* 这里可以用 transform 做一点倾斜或者阴影，增加层次 */
+            /* box-shadow: -20px 20px 60px rgba(0,0,0,0.5); */
+        }
+        .video-frame video {
+            width: 100%; height: 120%; /* 高一点，为了做视差滚动 */
+            object-fit: cover; object-position: center;
+        }
+
+        .watch-btn {
+            display: inline-block; border: 1px solid #fff; padding: 1rem 2rem;
+            color: #fff; font-family: var(--font-mono); text-transform: uppercase;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .watch-btn:hover { background: #fff; color: #000; }
+
+        @media(max-width: 768px) {
+            .split-container { flex-direction: column; padding: 6rem 2rem; }
+            .text-col, .visual-col { width: 100%; }
+            .big-title { font-size: 3.5rem; }
+            .visual-col { height: 50vh; margin-top: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+    <div class="cursor"></div>
+
+    <nav>
+        <a href="index.html" class="close-btn hover-magnet">×</a>
+    </nav>
+
+    <div class="split-container">
+        
+        <div class="text-col">
+            <div class="meta-data">
+                YEAR: 2025 <br>
+                TYPE: Generative Art
+            </div>
+            <h1 class="big-title">Cyber<br>Flux</h1>
+            <p class="desc">
+                数据是一条河流。Cyber Flux 监控全球网络流量数据的实时变化，并将其转化为可视化的流体动力学模拟。<br>
+                Data is a river. Cyber Flux visualizes global network traffic as fluid dynamics.
+            </p>
+            <a href="#" class="watch-btn hover-magnet">Watch 4K Full</a>
+        </div>
+
+        <div class="visual-col">
+            <div class="video-frame">
+                <!-- ★★★ 这里放视频 ★★★ -->
+                <video autoplay muted loop playsinline src="https://assets.codepen.io/6093409/river.mp4"></video>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- 可以在这里加更多内容 -->
+
+    <script>
+        const lenis = new Lenis({ smooth: true });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 文字入场
+        gsap.from(".big-title", { x: -50, opacity: 0, duration: 1, delay: 0.2 });
+        gsap.from(".desc", { opacity: 0, duration: 1, delay: 0.5 });
+
+        // 视频视差效果 (Parallax)
+        gsap.to(".video-frame video", {
+            yPercent: -20, // 视频向上移动
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".visual-col",
+                start: "top bottom", // 当容器顶部到达视口底部
+                end: "bottom top",   // 当容器底部到达视口顶部
+                scrub: true          // 绑定滚动
+            }
+        });
+
+        // 鼠标
+        const cursor = document.querySelector('.cursor');
+        window.addEventListener('mousemove', e => gsap.to(cursor, {x: e.clientX, y: e.clientY, duration: 0.1}));
+        document.querySelectorAll('.hover-magnet').forEach(btn => {
+            btn.addEventListener('mousemove', () => gsap.to(cursor, {scale: 3, opacity: 0.2}));
+            btn.addEventListener('mouseleave', () => gsap.to(cursor, {scale: 1, opacity: 1}));
+        });
+    </script>
+</body>
+</html>
